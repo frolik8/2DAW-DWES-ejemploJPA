@@ -17,16 +17,34 @@ Persistencia<br>
 	EntityManager em = emf.createEntityManager();
 	EntityTransaction tx = em.getTransaction();
 	
-	Genero genero = new Genero();
-	genero.setGenero("insufrible");
+	Genero genero = null; 
 	
-	tx.begin();
 	try {
+	
+		tx.begin();
+		if (tx.isActive())
+			out.println("Transacción activa.");
+		else
+			out.println("Transacción no activa.");
+			
+		// Se hace una búsqueda
+		genero = em.find(Genero.class, "Accion");
+		if (genero != null)
+			out.println("Género encontrado: "+genero.getGenero());
+		else
+			out.println("No se ha encontrado");
+			
+		// Se hace persistente una entidad
+		genero = new Genero();
+		genero.setGenero("insufrible");
+		
 		em.persist(genero);
+		
 		tx.commit();
 	} catch (Exception e) {
-		System.out.println("Error en transacción con objeto Genero.");
-		tx.rollback();
+		out.println("Error en transacción con objeto Genero: "+genero.getGenero());
+		if (tx.isActive())
+			tx.rollback();
 	}
 	finally {
 		em.close();
