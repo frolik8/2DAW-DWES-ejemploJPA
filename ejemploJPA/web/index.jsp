@@ -23,26 +23,44 @@ Persistencia<br>
 	
 		tx.begin();
 		if (tx.isActive())
-			out.println("Transacción activa.");
+			out.println("Transacción activa.<br>");
 		else
-			out.println("Transacción no activa.");
+			out.println("Transacción no activa.<br>");
 			
 		// Se hace una búsqueda
 		genero = em.find(Genero.class, "Accion");
 		if (genero != null)
-			out.println("Género encontrado: "+genero.getGenero());
+			out.println("Género encontrado: "+genero.getGenero()+"<br>");
 		else
-			out.println("No se ha encontrado");
+			out.println("No se ha encontrado <br>");
 			
 		// Se hace persistente una entidad
 		genero = new Genero();
 		genero.setGenero("insufrible");
+		out.println("Persistencia de: "+genero.getGenero()+"<br>");
 		
 		em.persist(genero);
 		
 		tx.commit();
+	} catch (EntityExistsException e) {
+		out.println("Excepción de existencia previa de la entidad.<br>");
+		if (tx.isActive())
+			tx.rollback();
+	} catch (IllegalArgumentException e) {
+		out.println("Excepción de instancia no es tipo entidad.<br>");
+		if (tx.isActive())
+			tx.rollback();
+	} catch (TransactionRequiredException e) {
+		out.println("Problema con configuración de transacción.<br>");
+		if (tx.isActive())
+			tx.rollback();
+	} catch (RollbackException e) {
+		out.println("El commit ha fallado.<br>");
+		if (tx.isActive())
+			tx.rollback();
 	} catch (Exception e) {
-		out.println("Error en transacción con objeto Genero: "+genero.getGenero());
+		out.println("Error desconocido en transacción con objeto Genero: "+genero.getGenero()+"<br>");
+		e.printStackTrace();
 		if (tx.isActive())
 			tx.rollback();
 	}
